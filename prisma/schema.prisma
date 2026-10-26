@@ -1,0 +1,113 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  // url      = env("DATABASE_URL")
+}
+
+enum Gender {
+  MALE
+  FEMALE
+}
+
+enum ReconcileStatus {
+  MATCHED
+  AMOUNT_MISMATCH
+  PARTIAL_MATCH
+  ONLY_IN_FRONTEND
+  ONLY_IN_BACKEND
+}
+
+type FrontEndFile {
+  cardType            String
+  transactionDateTime String
+  merchantId          String
+  merchantName        String
+  Shift               String
+  terminalId          String
+  cardNumber          String
+  vehicleLicense      String
+  product             String
+  priceLiter          Float
+  numberOfLiters      Float
+  total               Float
+  status              String
+  approveCode         String
+  referenceNumber     String
+}
+
+type BackEndFile {
+  no                  Int
+  system              String
+  cardType            String
+  cardGrade           String
+  cutOfDate           String
+  transactionDateTime String
+  setteldDateTime     String
+  merchant            String
+  merchantName        String
+  terminal            String
+  customer            String
+  customerEngName     String
+  customerLaoName     String
+  seq                 Int
+  card                String
+  vehicalLicense      String
+  product             String
+  productType         String
+  priceLiter          Float
+  numberOfLiters      Float
+  amount              Float
+  transactionStatus   String
+  previousOdo         String
+  odoMeter            String
+  distance            String
+  consumption         String
+  invoice             String
+  reference           String
+  approveCode         String
+  endpoint            String
+  responseCode        String
+  errorCode           String
+}
+
+type ReconcliledBy {
+  id       String
+  name     String
+  lastname String?
+  gender   Gender
+  contact  String
+  email    String?
+}
+
+model User {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  lastname  String?
+  gender    Gender
+  contact   String
+  email     String?
+  username  String
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@map("user")
+}
+
+type Reconciliation {
+  reconcileCode String
+  frontend      FrontEndFile?
+  backend       BackEndFile?
+  status        ReconcileStatus
+}
+
+model Result {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  manageBy  ReconcliledBy
+  items     Reconciliation[]
+  createdAt DateTime @default(now())
+
+  @@map("result")
+}
