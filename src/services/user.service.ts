@@ -2,7 +2,7 @@ import { prisma } from "../config/prisma";
 import { CreateUserInput, UpdateUserInput } from "../types/nidex.type";
 import bcrypt from "bcrypt";
 
-const SALT_ROUNDS = 10; 
+const SALT_ROUNDS = 10;
 
 export const UserService = {
   findAllUserService: () => {
@@ -18,22 +18,33 @@ export const UserService = {
     });
   },
 
-
   createUserService: async (data: CreateUserInput) => {
     const hashedPassword = await bcrypt.hash(data.password, SALT_ROUNDS);
     return prisma.user.create({
       data: {
         ...data,
-        password: hashedPassword, 
+        password: hashedPassword,
       },
-      omit: { password: true }, 
+      omit: { password: true },
     });
   },
 
   updateUserService: async (id: string, data: UpdateUserInput) => {
-    let updateData: any = { ...data };
-    if (data.password) {
-      updateData.password = await bcrypt.hash(data.password, SALT_ROUNDS);
+    const { id: _idToIgnore, _id, createdAt, updatedAt, ...safeData } = data as any;
+    let updateData: any = { ...safeData };
+
+    if (typeof updateData.gender === "string") {
+      updateData.gender = updateData.gender.toUpperCase();
+    }
+
+    if (updateData.password !== undefined && String(updateData.password).trim() === "") {
+      delete updateData.password;
+    }
+
+    if (updateData.password && updateData.password.trim() !== "") {
+      updateData.password = await bcrypt.hash(updateData.password, SALT_ROUNDS);
+    } else {
+      delete updateData.password;
     }
 
     return prisma.user.update({
@@ -43,11 +54,10 @@ export const UserService = {
     });
   },
 
-
   deleteUserService: (id: string) => {
     return prisma.user.delete({
       where: { id },
-      select: { id: true, username: true, name: true }, 
+      select: { id: true, username: true, name: true },
     });
   },
 };

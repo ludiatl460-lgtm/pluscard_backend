@@ -93,6 +93,7 @@ model User {
   password  String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
   @@map("user")
 }
 
@@ -104,10 +105,10 @@ type Reconciliation {
 }
 
 model Result {
-  id String @id @default(auto()) @map("_id") @db.ObjectId
+  id        String           @id @default(auto()) @map("_id") @db.ObjectId
   manageBy  ReconcliledBy
   items     Reconciliation[]
-  createdAt DateTime @default(now())
+  createdAt DateTime         @default(now())
 
   @@map("result")
 }
